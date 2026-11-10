@@ -1,0 +1,28 @@
+{
+ "name": "Borsa Elettrica Europa",
+ "short_name": "Borsa Elettrica",
+ "start_url": "./",
+ "scope": "./",
+ "display": "standalone",
+ "background_color": "#13202B",
+ "theme_color": "#13202B",
+ "lang": "it",
+ "icons": [
+  {
+   "src": "icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "icon-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

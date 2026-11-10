@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="it">
+<head>
+<title>Borsa Elettrica Europa</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#13202B">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: a control strip on top, then stacked analysis panels (trend, comparison, profile, ranking, household bills), each full width with its own controls */
+:root{
+  --bg:#F4F6F8; --panel:#FFFFFF; --ink:#13202B; --muted:#5A6874; --line:#DCE2E8; --grid:#E9EDF1;
+  --accent:#1F5FBF; --accent-soft:#E3ECFA;
+  --es:#C2410C; --it:#0F7A70; --up:#B42318; --down:#157F3B; --warn:#B7791F;
+  --s1:#1F5FBF; --s2:#7C3AED; --s3:#64748B; --s4:#B7791F; --s5:#DB2777; --s6:#0891B2;
+  --f-head:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-num:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151C; --panel:#151F29; --ink:#E6ECF1; --muted:#93A1AE; --line:#263442; --grid:#1E2A36;
+  --accent:#6EA2F0; --accent-soft:#1B2B44;
+  --es:#F0804A; --it:#3CC4B4; --up:#F27466; --down:#4CC77A; --warn:#E6B357;
+  --s1:#6EA2F0; --s2:#A98BF5; --s3:#9AA9B8; --s4:#E6B357; --s5:#F07BB4; --s6:#38C3E0;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151C; --panel:#151F29; --ink:#E6ECF1; --muted:#93A1AE; --line:#263442; --grid:#1E2A36;
+  --accent:#6EA2F0; --accent-soft:#1B2B44;
+  --es:#F0804A; --it:#3CC4B4; --up:#F27466; --down:#4CC77A; --warn:#E6B357;
+  --s1:#6EA2F0; --s2:#A98BF5; --s3:#9AA9B8; --s4:#E6B357; --s5:#F07BB4; --s6:#38C3E0;
+  color-scheme:dark}
+*{box-sizing:border-box}html{color-scheme:light}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 48px;display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-head);margin:0;text-wrap:balance;letter-spacing:.005em}
+h1{font-size:28px;font-weight:700}
+h2{font-size:20px;font-weight:600}
+.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+.label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600}
+header.top{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end;justify-content:space-between}
+.status{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--muted)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.ok .dot{background:var(--down)} .pill.stale .dot{background:var(--warn)} .pill.err .dot{background:var(--up)}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:8px;padding:7px 14px;font-weight:600}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.ghost{background:transparent;color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel-head{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:baseline;justify-content:space-between}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+[hidden]{display:none!important}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .v{font-family:var(--f-num);font-size:24px;font-weight:500;font-variant-numeric:tabular-nums}
+.kpi .u{font-size:12px;color:var(--muted)}
+.kpi .d{font-family:var(--f-num);font-size:12px}
+.kpi.es{border-top:3px solid var(--es)} .kpi.it{border-top:3px solid var(--it)} .kpi.sp{border-top:3px solid var(--ink)}
+.up{color:var(--up)} .down{color:var(--down)}
+.controls{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;color:var(--muted);padding:5px 10px;font-size:12px;font-weight:600}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:3px 10px 3px 8px;font-size:12px}
+.chip .sw{width:10px;height:10px;border-radius:3px}
+.chip.x{color:var(--muted)}
+select{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:100%}
+label.chk{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
+.chart{position:relative;width:100%;min-width:0}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--muted);font-family:var(--f-num);font-size:11px}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px;box-shadow:0 6px 18px rgba(0,0,0,.12);min-width:150px;z-index:5}
+.tip .row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.tip .row span:first-child{display:inline-flex;align-items:center;gap:6px}
+.tip .sw{width:8px;height:8px;border-radius:2px;display:inline-block}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .v{font-family:var(--f-num);font-size:16px;font-variant-numeric:tabular-nums}
+.tblwrap{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--grid);text-align:left;white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+td.r,th.r{text-align:right}
+tr.hl td{background:var(--accent-soft)}
+tr.click{cursor:pointer}
+tr.click:hover td{background:var(--grid)}
+.bar{height:8px;border-radius:2px;background:var(--s3);min-width:2px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px}
+.note{font-size:12px;color:var(--muted);max-width:75ch}
+.empty{padding:28px 8px;text-align:center;color:var(--muted)}
+.progress{height:4px;background:var(--grid);border-radius:2px;overflow:hidden}
+.progress>div{height:100%;background:var(--accent);width:0;transition:width .3s}
+.hbar{display:grid;grid-template-columns:minmax(90px,150px) 1fr 58px;gap:8px;align-items:center;font-size:12px}
+.hbar .t{height:10px;background:var(--grid);border-radius:2px;position:relative}
+.hbar .f{height:100%;background:var(--s3);border-radius:2px}
+.hbar.es .f{background:var(--es)} .hbar.it .f{background:var(--it)}
+.hbar.es,.hbar.it{font-weight:600}
+.hbars{display:flex;flex-direction:column;gap:4px}
+footer{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+footer a{color:var(--accent)}
+@media (max-width:520px){h1{font-size:23px}.kpi{padding:10px 12px}.kpi .v{font-size:19px}.kpi .d{font-size:11px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="label">Mercati day-ahead · bollette domestiche</div>
+      <h1>Borsa Elettrica Europa</h1>
+    </div>
+    <div class="status">
+      <span class="pill" id="st-pill"><span class="dot"></span><span id="st-text">Caricamento dati…</span></span>
+      
+    </div>
+  </header>
+
+  <section id="today" class="panel">
+    <div class="panel-head">
+      <h2 id="today-title">Prezzo medio del giorno</h2>
+      <div class="controls"><select id="day-sel" aria-label="Giorno"></select></div>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <p class="note">Media dei 96 quarti d'ora del mercato del giorno prima (SDAC), giorno in ora CET. L'Italia non ha un prezzo unico in questa fonte: il PUN nazionale è una media ponderata sui volumi che Energy-Charts non pubblica, quindi il confronto usa la zona Nord, che pesa di più sui consumi.</p>
+  </section>
+
+  <section id="trend" class="panel">
+    <div class="panel-head">
+      <h2>Andamento</h2>
+      <div class="controls">
+        <div class="seg" id="range-seg" role="group" aria-label="Periodo">
+          <button data-v="30">30 g</button><button data-v="90">90 g</button><button data-v="180">6 mesi</button><button data-v="365">1 anno</button>
+        </div>
+        <div class="seg" id="agg-seg" role="group" aria-label="Aggregazione">
+          <button data-v="d">Giorno</button><button data-v="w">Settimana</button><button data-v="m">Mese</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="ma-chk"> Media mobile 7 g</label>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="chips" id="sel-chips"></div>
+      <select id="add-zone" aria-label="Aggiungi zona"><option value="">+ Aggiungi zona</option></select>
+    </div>
+    <div class="chart" id="trend-chart"></div>
+    <div class="tblwrap"><table id="trend-stats"></table></div>
+  </section>
+
+  <section id="compare" class="panel">
+    <div class="panel-head">
+      <h2>Confronto tra due zone</h2>
+      <div class="controls">
+        <select id="cmp-a" aria-label="Zona A"></select>
+        <span class="muted">meno</span>
+        <select id="cmp-b" aria-label="Zona B"></select>
+        <button class="btn ghost" id="cmp-swap" aria-label="Inverti">⇄</button>
+      </div>
+    </div>
+    <div class="stats" id="cmp-stats"></div>
+    <div class="chart" id="cmp-chart"></div>
+    <div class="tblwrap"><table id="cmp-month"></table></div>
+  </section>
+
+  <section id="profile" class="panel">
+    <div class="panel-head">
+      <h2>Profilo nella giornata</h2>
+      <div class="controls"><div class="seg" id="prof-seg" role="group" aria-label="Giorno del profilo"></div></div>
+    </div>
+    <div class="chart" id="prof-chart"></div>
+    <p class="note">Prezzo per quarto d'ora delle zone selezionate in Andamento. La forma della curva mostra il peso del solare a metà giornata e i picchi serali.</p>
+  </section>
+
+  <section id="ranking" class="panel">
+    <div class="panel-head">
+      <h2 id="rank-title">Classifica delle zone</h2>
+      <span class="small muted">Tocca una riga per aggiungerla ai grafici</span>
+    </div>
+    <div class="tblwrap"><table id="rank-tbl"></table></div>
+  </section>
+
+  <div class="grid2">
+    <section id="bills" class="panel">
+      <div class="panel-head">
+        <h2>Bolletta domestica per paese</h2>
+        <div class="seg" id="eu-seg" role="group" aria-label="Semestre"></div>
+      </div>
+      <div class="hbars" id="eu-bars"></div>
+      <p class="note" id="eu-note"></p>
+    </section>
+    <section id="capitals" class="panel">
+      <div class="panel-head"><h2>Bolletta nelle capitali</h2><span class="small muted" id="hepi-period"></span></div>
+      <div class="hbars" id="hepi-bars"></div>
+      <p class="note" id="hepi-note"></p>
+    </section>
+  </div>
+
+  <footer>
+    <div>Ingrosso: <a href="https://energy-charts.info" target="_blank" rel="noopener">Energy-Charts</a> (Fraunhofer ISE, dati ENTSO-E/borse), €/MWh. Domestico: <a href="https://ec.europa.eu/eurostat/databrowser/view/nrg_pc_204/default/table" target="_blank" rel="noopener">Eurostat nrg_pc_204</a>, consumo 2.500–4.999 kWh/anno, tasse incluse. Capitali: <a href="https://www.energypriceindex.com/price-data" target="_blank" rel="noopener">HEPI</a>.</div>
+    <div>Aggiornamento automatico più volte al giorno; i prezzi di domani escono verso le 13:00. I prezzi all'ingrosso escludono reti, oneri e imposte: non sono il costo in bolletta.</div>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+const ZONES=[
+["ES","Spagna"],["PT","Portogallo"],["IT-North","Italia Nord"],["IT-Centre-North","Italia Centro-Nord"],["IT-Centre-South","Italia Centro-Sud"],["IT-South","Italia Sud"],["IT-Calabria","Italia Calabria"],["IT-Sicily","Italia Sicilia"],["IT-Sardinia","Italia Sardegna"],
+["FR","Francia"],["DE-LU","Germania"],["AT","Austria"],["BE","Belgio"],["NL","Paesi Bassi"],["CH","Svizzera"],["PL","Polonia"],["CZ","Cechia"],["SK","Slovacchia"],["HU","Ungheria"],["SI","Slovenia"],["HR","Croazia"],["RO","Romania"],["BG","Bulgaria"],["GR","Grecia"],["RS","Serbia"],["ME","Montenegro"],
+["EE","Estonia"],["LV","Lettonia"],["LT","Lituania"],["FI","Finlandia"],["DK1","Danimarca Ovest"],["DK2","Danimarca Est"],
+["NO1","Norvegia NO1 Oslo"],["NO2","Norvegia NO2 Sud"],["NO3","Norvegia NO3 Centro"],["NO4","Norvegia NO4 Nord"],["NO5","Norvegia NO5 Ovest"],
+["SE1","Svezia SE1 Nord"],["SE2","Svezia SE2"],["SE3","Svezia SE3 Stoccolma"],["SE4","Svezia SE4 Malmö"]];
+const NAME=Object.fromEntries(ZONES);
+const PALETTE=["--s1","--s2","--s4","--s5","--s6","--s3"];
+const FIXED={"ES":"--es","IT-North":"--it"};
+const EUROSTAT_URL="https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/nrg_pc_204?format=JSON&lang=EN&nrg_cons=KWH2500-4999&tax=I_TAX&currency=EUR&unit=KWH&sinceTimePeriod=2024-S1";
+const EU_NAMES={EU27_2020:"Media UE-27",BE:"Belgio",BG:"Bulgaria",CZ:"Cechia",DK:"Danimarca",DE:"Germania",EE:"Estonia",IE:"Irlanda",EL:"Grecia",ES:"Spagna",FR:"Francia",HR:"Croazia",IT:"Italia",CY:"Cipro",LV:"Lettonia",LT:"Lituania",LU:"Lussemburgo",HU:"Ungheria",MT:"Malta",NL:"Paesi Bassi",AT:"Austria",PL:"Polonia",PT:"Portogallo",RO:"Romania",SI:"Slovenia",SK:"Slovacchia",FI:"Finlandia",SE:"Svezia",IS:"Islanda",LI:"Liechtenstein",NO:"Norvegia",BA:"Bosnia-Erzegovina",ME:"Montenegro",MD:"Moldova",MK:"Macedonia del Nord",GE:"Georgia",AL:"Albania",RS:"Serbia",TR:"Turchia",XK:"Kosovo",UK:"Regno Unito",UA:"Ucraina"};
+
+const S={zones:{},status:null,eurostat:null,hepi:null,
+  sel:["ES","IT-North","FR","DE-LU"],range:90,agg:"d",ma:false,cmpA:"IT-North",cmpB:"ES",day:null,profDay:null,euPeriod:null,loaded:false};
+try{const p=JSON.parse(localStorage.getItem("bee-prefs")||"null");if(p){Object.assign(S,{sel:p.sel||S.sel,range:p.range||S.range,agg:p.agg||S.agg,ma:!!p.ma,cmpA:p.cmpA||S.cmpA,cmpB:p.cmpB||S.cmpB});}}catch(e){}
+function savePrefs(){try{localStorage.setItem("bee-prefs",JSON.stringify({sel:S.sel,range:S.range,agg:S.agg,ma:S.ma,cmpA:S.cmpA,cmpB:S.cmpB}))}catch(e){}}
+
+const $=id=>document.getElementById(id);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const fmt=(v,d=2)=>v==null||isNaN(v)?"—":v.toLocaleString("it-IT",{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtS=(v,d=2)=>v==null||isNaN(v)?"—":(v>0?"+":v<0?"−":"")+fmt(Math.abs(v),d);
+const MESI=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+const GIORNI=["dom","lun","mar","mer","gio","ven","sab"];
+function dLabel(s,long){const [y,m,d]=s.split("-").map(Number);const dt=new Date(Date.UTC(y,m-1,d));return (long?GIORNI[dt.getUTCDay()]+" ":"")+d+" "+MESI[m-1]+(long?" "+y:"");}
+function todayCET(){return new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());}
+function addDays(s,n){const [y,m,d]=s.split("-").map(Number);const dt=new Date(Date.UTC(y,m-1,d+n));return dt.toISOString().slice(0,10);}
+function el(tag,attrs,kids){const e=document.createElement(tag);if(attrs)for(const k in attrs){if(k==="class")e.className=attrs[k];else if(k==="text")e.textContent=attrs[k];else if(k.startsWith("on"))e.addEventListener(k.slice(2),attrs[k]);else e.setAttribute(k,attrs[k]);}(kids||[]).forEach(c=>c&&e.appendChild(c));return e;}
+const SVGNS="http://www.w3.org/2000/svg";
+function sv(tag,attrs,parent){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+function colorOf(code){if(FIXED[code])return cssv(FIXED[code]);const others=S.sel.filter(c=>!FIXED[c]);const i=others.indexOf(code);return cssv(PALETTE[(i<0?0:i)%PALETTE.length]);}
+
+/* ---------- data helpers ---------- */
+function daily(code){const z=S.zones[code];if(!z||!z.d)return [];return Object.keys(z.d).sort().map(k=>({x:k,y:z.d[k][0],mn:z.d[k][1],mx:z.d[k][2]}));}
+function allDates(){const s=new Set();Object.values(S.zones).forEach(z=>z.d&&Object.keys(z.d).forEach(k=>s.add(k)));return [...s].sort();}
+function lastDate(){const a=allDates();return a[a.length-1]||null;}
+function weekKey(s){const [y,m,d]=s.split("-").map(Number);const dt=new Date(Date.UTC(y,m-1,d));const wd=(dt.getUTCDay()+6)%7;dt.setUTCDate(dt.getUTCDate()-wd);return dt.toISOString().slice(0,10);}
+function aggregate(pts,agg){if(agg==="d")return pts;const g=new Map();pts.forEach(p=>{const k=agg==="w"?weekKey(p.x):p.x.slice(0,7)+"-01";if(!g.has(k))g.set(k,[]);g.get(k).push(p.y);});return [...g.entries()].sort().map(([k,v])=>({x:k,y:v.reduce((a,b)=>a+b,0)/v.length,n:v.length}));}
+function movAvg(pts,n){return pts.map((p,i)=>{const w=pts.slice(Math.max(0,i-n+1),i+1);return {x:p.x,y:w.reduce((a,b)=>a+b.y,0)/w.length};});}
+function inRange(pts){const ld=lastDate();if(!ld)return pts;const from=addDays(ld,-S.range+1);return pts.filter(p=>p.x>=from);}
+function stats(arr){const v=arr.filter(x=>x!=null&&!isNaN(x));if(!v.length)return null;const m=v.reduce((a,b)=>a+b,0)/v.length;const sd=Math.sqrt(v.reduce((a,b)=>a+(b-m)*(b-m),0)/v.length);return {mean:m,min:Math.min(...v),max:Math.max(...v),sd,n:v.length};}
+function corr(a,b){const n=a.length;if(n<3)return null;const ma=a.reduce((x,y)=>x+y,0)/n,mb=b.reduce((x,y)=>x+y,0)/n;let sab=0,sa=0,sb=0;for(let i=0;i<n;i++){sab+=(a[i]-ma)*(b[i]-mb);sa+=(a[i]-ma)**2;sb+=(b[i]-mb)**2;}return sab/Math.sqrt(sa*sb);}
+
+/* ---------- chart engine ---------- */
+function niceTicks(lo,hi,n){if(lo===hi){lo-=1;hi+=1;}const span=hi-lo,step0=span/n,mag=Math.pow(10,Math.floor(Math.log10(step0))),r=step0/mag;const step=(r<1.5?1:r<3?2:r<7?5:10)*mag;const a=Math.floor(lo/step)*step,b=Math.ceil(hi/step)*step;const t=[];for(let v=a;v<=b+step/2;v+=step)t.push(+v.toFixed(10));return t;}
+function dateNum(s){const [y,m,d]=s.split("-").map(Number);return Date.UTC(y,m-1,d)/864e5;}
+/* series: [{code,label,color,pts:[{x,y}],dash?,area?}] ; opt: {xType:"date"|"num",h,unit,zero,xfmt,tipTitle} */
+function lineChart(host,series,opt){
+  host.textContent="";
+  const W=Math.max(300,host.clientWidth||640),H=opt.h||(W<520?240:320);
+  const m={l:46,r:14,t:12,b:26};
+  const xs=series.flatMap(s=>s.pts.map(p=>opt.xType==="num"?p.x:dateNum(p.x)));
+  const ys=series.flatMap(s=>s.pts.map(p=>p.y)).filter(v=>v!=null&&!isNaN(v));
+  if(!xs.length||!ys.length){host.appendChild(el("div",{class:"empty",text:opt.empty||"Nessun dato per questa selezione."}));return;}
+  let x0=Math.min(...xs),x1=Math.max(...xs);if(x0===x1){x0-=1;x1+=1;}
+  let ylo=Math.min(...ys),yhi=Math.max(...ys);if(opt.zero){ylo=Math.min(0,ylo);yhi=Math.max(0,yhi);}
+  const ticks=niceTicks(ylo,yhi,W<520?4:6);ylo=ticks[0];yhi=ticks[ticks.length-1];
+  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r),Y=v=>m.t+(1-(v-ylo)/(yhi-ylo))*(H-m.t-m.b);
+  const svg=sv("svg",{viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":opt.aria||"Grafico"});
+  const g=cssv("--grid"),ink=cssv("--ink");
+  ticks.forEach(t=>{sv("line",{x1:m.l,x2:W-m.r,y1:Y(t),y2:Y(t),stroke:t===0&&opt.zero?cssv("--muted"):g,"stroke-width":1},svg);const tx=sv("text",{x:m.l-6,y:Y(t)+4,"text-anchor":"end"},svg);tx.textContent=fmt(t,0);});
+  // x ticks
+  const nX=W<520?4:7;
+  for(let i=0;i<nX;i++){const v=x0+(x1-x0)*i/(nX-1);const tx=sv("text",{x:X(v),y:H-8,"text-anchor":i===0?"start":i===nX-1?"end":"middle"},svg);tx.textContent=opt.xType==="num"?opt.xfmt(v):(()=>{const d=new Date(v*864e5);return (S.range>200&&opt.long!==false&&opt.xType!=="num")?MESI[d.getUTCMonth()]+" "+String(d.getUTCFullYear()).slice(2):d.getUTCDate()+" "+MESI[d.getUTCMonth()];})();}
+  series.forEach(s=>{
+    const pts=s.pts.filter(p=>p.y!=null&&!isNaN(p.y)).map(p=>[X(opt.xType==="num"?p.x:dateNum(p.x)),Y(p.y)]);
+    if(!pts.length)return;
+    if(s.area){const z=Y(Math.max(ylo,Math.min(yhi,0)));
+      const pos="M"+pts.map(p=>p[0].toFixed(1)+","+Math.min(p[1],z).toFixed(1)).join("L")+`L${pts[pts.length-1][0].toFixed(1)},${z}L${pts[0][0].toFixed(1)},${z}Z`;
+      const neg="M"+pts.map(p=>p[0].toFixed(1)+","+Math.max(p[1],z).toFixed(1)).join("L")+`L${pts[pts.length-1][0].toFixed(1)},${z}L${pts[0][0].toFixed(1)},${z}Z`;
+      sv("path",{d:pos,fill:s.posColor,"fill-opacity":.22,stroke:"none"},svg);sv("path",{d:neg,fill:s.negColor,"fill-opacity":.22,stroke:"none"},svg);}
+    sv("path",{d:"M"+pts.map(p=>p[0].toFixed(1)+","+p[1].toFixed(1)).join("L"),fill:"none",stroke:s.color,"stroke-width":s.w||2,"stroke-linejoin":"round","stroke-dasharray":s.dash||"","stroke-opacity":s.op||1},svg);
+    if(!s.dash&&!s.noDot){const lp=pts[pts.length-1];sv("circle",{cx:lp[0],cy:lp[1],r:3.5,fill:s.color,stroke:cssv("--panel"),"stroke-width":1.5},svg);}
+  });
+  if(opt.marks)opt.marks.forEach(mk=>{if(mk.y<ylo||mk.y>yhi)return;sv("line",{x1:m.l,x2:W-m.r,y1:Y(mk.y),y2:Y(mk.y),stroke:mk.color,"stroke-dasharray":"4 4","stroke-width":1},svg);});
+  const cross=sv("line",{y1:m.t,y2:H-m.b,stroke:cssv("--muted"),"stroke-width":1,visibility:"hidden"},svg);
+  const dots=series.map(s=>sv("circle",{r:4,fill:s.color,stroke:cssv("--panel"),"stroke-width":1.5,visibility:"hidden"},svg));
+  host.appendChild(svg);
+  const tip=el("div",{class:"tip",hidden:""});host.appendChild(tip);
+  const keyX=p=>opt.xType==="num"?p.x:dateNum(p.x);
+  const xsU=[...new Set(xs)].sort((a,b)=>a-b);
+  function move(ev){const r=svg.getBoundingClientRect();const px=(ev.clientX-r.left)*W/r.width;if(px<m.l-4||px>W-m.r+4){hide();return;}
+    const v=x0+(px-m.l)/(W-m.l-m.r)*(x1-x0);let best=xsU[0];for(const q of xsU)if(Math.abs(q-v)<Math.abs(best-v))best=q;
+    cross.setAttribute("x1",X(best));cross.setAttribute("x2",X(best));cross.setAttribute("visibility","visible");
+    tip.textContent="";tip.appendChild(el("div",{class:"label",text:opt.tipTitle(best)}));
+    series.forEach((s,i)=>{const p=s.pts.find(p=>keyX(p)===best);if(!p||p.y==null){dots[i].setAttribute("visibility","hidden");return;}
+      dots[i].setAttribute("cx",X(best));dots[i].setAttribute("cy",Y(p.y));dots[i].setAttribute("visibility","visible");
+      if(s.noTip)return;
+      const sw=el("span",{class:"sw"});sw.style.background=s.color;
+      tip.appendChild(el("div",{class:"row"},[el("span",{},[sw,document.createTextNode(s.label)]),el("span",{class:"num",text:(s.signed?fmtS(p.y):fmt(p.y))})]));});
+    if(opt.unit)tip.appendChild(el("div",{class:"small muted",text:opt.unit}));
+    tip.hidden=false;const hw=host.clientWidth,tw=tip.offsetWidth;let left=X(best)/W*r.width+12;if(left+tw>hw)left=X(best)/W*r.width-tw-12;tip.style.left=Math.max(0,left)+"px";tip.style.top="8px";}
+  function hide(){tip.hidden=true;cross.setAttribute("visibility","hidden");dots.forEach(d=>d.setAttribute("visibility","hidden"));}
+  svg.addEventListener("pointermove",move);svg.addEventListener("pointerdown",move);svg.addEventListener("pointerleave",hide);
+}
+
+/* ---------- renderers ---------- */
+function zoneOptions(sel,value){sel.textContent="";ZONES.forEach(([c,n])=>{const o=el("option",{value:c,text:n});if(c===value)o.selected=true;sel.appendChild(o);});}
+function renderDaySel(){const dates=allDates();const sel=$("day-sel");sel.textContent="";const t=todayCET();
+  const recent=dates.slice(-10).reverse();if(!S.day||!dates.includes(S.day))S.day=dates.includes(t)?t:recent[0];
+  recent.forEach(d=>{const lab=d===t?"Oggi, "+dLabel(d):d===addDays(t,1)?"Domani, "+dLabel(d):dLabel(d,true);const o=el("option",{value:d,text:lab});if(d===S.day)o.selected=true;sel.appendChild(o);});}
+function val(code,day){const z=S.zones[code];return z&&z.d&&z.d[day]?z.d[day][0]:null;}
+function renderKpis(){const box=$("kpis");box.textContent="";const d=S.day;if(!d)return;const prev=addDays(d,-1);
+  $("today-title").textContent="Prezzo medio · "+dLabel(d,true);
+  const card=(cls,label,code)=>{const v=val(code,d),p=val(code,prev);const dd=v!=null&&p!=null?v-p:null;
+    return el("div",{class:"kpi "+cls},[el("div",{class:"label",text:label}),el("div",{class:"v",text:fmt(v)}),el("div",{class:"u",text:"€/MWh"}),el("div",{class:"d "+(dd>0?"up":dd<0?"down":""),text:dd==null?"—":fmtS(dd)+" vs giorno prima"})]);};
+  box.appendChild(card("es","Spagna","ES"));box.appendChild(card("es","Portogallo","PT"));box.appendChild(card("it","Italia Nord","IT-North"));
+  const a=val("IT-North",d),b=val("ES",d),pa=val("IT-North",prev),pb=val("ES",prev);const sp=a!=null&&b!=null?a-b:null,psp=pa!=null&&pb!=null?pa-pb:null;
+  box.appendChild(el("div",{class:"kpi sp"},[el("div",{class:"label",text:"Differenza Italia Nord − Spagna"}),el("div",{class:"v",text:fmtS(sp)}),el("div",{class:"u",text:"€/MWh"+(sp!=null&&b?" · "+fmtS(sp/b*100,1)+"%":"")}),el("div",{class:"d muted",text:psp==null?"—":"giorno prima "+fmtS(psp)})]));
+  box.appendChild(card("","Francia","FR"));box.appendChild(card("","Germania","DE-LU"));}
+function renderChips(){const box=$("sel-chips");box.textContent="";S.sel.forEach(c=>{const sw=el("span",{class:"sw"});sw.style.background=colorOf(c);
+  box.appendChild(el("button",{class:"chip",title:"Rimuovi "+NAME[c],"aria-label":"Rimuovi "+NAME[c],onclick:()=>{if(S.sel.length>1){S.sel=S.sel.filter(x=>x!==c);savePrefs();renderAnalysis();}}},[sw,document.createTextNode(NAME[c]+"  ×")]));});
+  const add=$("add-zone");add.textContent="";add.appendChild(el("option",{value:"",text:S.sel.length>=6?"Massimo 6 zone":"+ Aggiungi zona"}));ZONES.filter(([c])=>!S.sel.includes(c)).forEach(([c,n])=>add.appendChild(el("option",{value:c,text:n})));add.disabled=S.sel.length>=6;}
+function seriesFor(code){let p=inRange(daily(code));p=aggregate(p,S.agg);if(S.ma&&S.agg==="d")p=movAvg(p,7);return p;}
+function tipDate(v){const d=new Date(v*864e5).toISOString().slice(0,10);return S.agg==="m"?MESI[+d.slice(5,7)-1]+" "+d.slice(0,4):S.agg==="w"?"Settimana dal "+dLabel(d):dLabel(d,true);}
+function renderTrend(){const ser=S.sel.map(c=>({code:c,label:NAME[c],color:colorOf(c),pts:seriesFor(c)}));
+  lineChart($("trend-chart"),ser,{xType:"date",unit:"€/MWh"+(S.ma&&S.agg==="d"?" · media mobile 7 g":""),tipTitle:tipDate,aria:"Andamento dei prezzi medi"});
+  const t=$("trend-stats");t.textContent="";const hr=el("tr",{},["Zona","Media","Min","Max","Volatilità σ","Ultimo giorno","Variazione periodo"].map((h,i)=>el("th",{class:i?"r":"",text:h})));t.appendChild(el("thead",{},[hr]));const tb=el("tbody");
+  S.sel.forEach(c=>{const p=inRange(daily(c));const st=stats(p.map(x=>x.y));if(!st){return;}const first=p[0].y,last=p[p.length-1].y;const sw=el("span",{class:"sw"});sw.style.cssText="display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;background:"+colorOf(c);
+    tb.appendChild(el("tr",{},[el("td",{},[sw,document.createTextNode(NAME[c])]),el("td",{class:"r num",text:fmt(st.mean)}),el("td",{class:"r num",text:(()=>{const v=p.map(x=>x.mn).filter(x=>x!=null);return fmt(v.length?Math.min(...v):null);})()}),el("td",{class:"r num",text:(()=>{const v=p.map(x=>x.mx).filter(x=>x!=null);return fmt(v.length?Math.max(...v):null);})()}),el("td",{class:"r num",text:fmt(st.sd)}),el("td",{class:"r num",text:fmt(last)}),el("td",{class:"r num "+(last>first?"up":"down"),text:fmtS((last-first)/first*100,1)+"%"})]));});
+  t.appendChild(tb);t.appendChild(el("caption",{class:"small muted",style:"caption-side:bottom;text-align:left;padding-top:6px",text:"Statistiche sui prezzi medi giornalieri del periodo; min e max sono i singoli quarti d'ora più bassi e più alti. €/MWh."}));}
+function renderCompare(){zoneOptions($("cmp-a"),S.cmpA);zoneOptions($("cmp-b"),S.cmpB);
+  const A=inRange(daily(S.cmpA)),B=new Map(inRange(daily(S.cmpB)).map(p=>[p.x,p.y]));const both=A.filter(p=>B.has(p.x));
+  const spread=both.map(p=>({x:p.x,y:p.y-B.get(p.x)}));const agg=aggregate(spread,S.agg);
+  const st=stats(spread.map(p=>p.y)),sa=stats(both.map(p=>p.y)),sb=stats(both.map(p=>B.get(p.x)));
+  const r=corr(both.map(p=>p.y),both.map(p=>B.get(p.x)));const above=spread.filter(p=>p.y>0).length;
+  const box=$("cmp-stats");box.textContent="";
+  const stat=(l,v,sub)=>el("div",{class:"stat"},[el("div",{class:"label",text:l}),el("div",{class:"v",text:v}),sub?el("div",{class:"small muted",text:sub}):null]);
+  if(st){box.appendChild(stat("Media "+NAME[S.cmpA],fmt(sa.mean),"€/MWh"));box.appendChild(stat("Media "+NAME[S.cmpB],fmt(sb.mean),"€/MWh"));
+    box.appendChild(stat("Differenza media",fmtS(st.mean),"€/MWh · "+fmtS(st.mean/sb.mean*100,1)+"%"));
+    box.appendChild(stat("Giorni A più cara",Math.round(above/spread.length*100)+"%",above+" su "+spread.length));
+    box.appendChild(stat("Differenza min / max",fmtS(st.min,0)+" / "+fmtS(st.max,0),"€/MWh"));
+    box.appendChild(stat("Correlazione",r==null?"—":fmt(r,2),"1 = si muovono insieme"));}
+  lineChart($("cmp-chart"),[{code:"sp",label:NAME[S.cmpA]+" − "+NAME[S.cmpB],color:cssv("--ink"),pts:agg,area:true,posColor:cssv("--up"),negColor:cssv("--down"),signed:true}],{xType:"date",zero:true,unit:"€/MWh · sopra lo zero "+NAME[S.cmpA]+" più cara",tipTitle:tipDate,aria:"Differenziale tra le due zone",empty:"Le due zone non hanno giorni in comune nel periodo."});
+  const t=$("cmp-month");t.textContent="";const mA=aggregate(A,"m"),mB=new Map(aggregate(inRange(daily(S.cmpB)),"m").map(p=>[p.x,p.y]));
+  t.appendChild(el("thead",{},[el("tr",{},["Mese",NAME[S.cmpA],NAME[S.cmpB],"Differenza","%"].map((h,i)=>el("th",{class:i?"r":"",text:h})))]));const tb=el("tbody");
+  mA.slice().reverse().forEach(p=>{const b=mB.get(p.x);const dd=b!=null?p.y-b:null;tb.appendChild(el("tr",{},[el("td",{text:MESI[+p.x.slice(5,7)-1]+" "+p.x.slice(0,4)+(p.n<28&&p.x.slice(0,7)===lastDate().slice(0,7)?" (in corso)":"")}),el("td",{class:"r num",text:fmt(p.y)}),el("td",{class:"r num",text:fmt(b)}),el("td",{class:"r num "+(dd>0?"up":dd<0?"down":""),text:fmtS(dd)}),el("td",{class:"r num",text:b?fmtS(dd/b*100,1)+"%":"—"})]));});
+  t.appendChild(tb);}
+function profDays(){const s=new Set();S.sel.forEach(c=>{const z=S.zones[c];z&&z.q&&Object.keys(z.q).forEach(k=>s.add(k));});return [...s].sort().slice(-2);}
+function renderProfile(){const days=profDays();const seg=$("prof-seg");seg.textContent="";const t=todayCET();
+  if(!S.profDay||!days.includes(S.profDay))S.profDay=days.includes(addDays(t,1))?addDays(t,1):days[days.length-1];
+  days.forEach(d=>{seg.appendChild(el("button",{"aria-pressed":String(d===S.profDay),text:d===t?"Oggi":d===addDays(t,1)?"Domani":dLabel(d),onclick:()=>{S.profDay=d;renderProfile();}}));});
+  const ser=S.sel.map(c=>{const q=S.zones[c]&&S.zones[c].q&&S.zones[c].q[S.profDay];const pts=q?q.v.map((y,i)=>({x:i*q.s,y})):[];return {code:c,label:NAME[c],color:colorOf(c),pts,w:1.75};});
+  lineChart($("prof-chart"),ser,{xType:"num",unit:"€/MWh",xfmt:v=>String(Math.floor(v/60)).padStart(2,"0")+":00",tipTitle:v=>(S.profDay?dLabel(S.profDay)+", ":"")+String(Math.floor(v/60)).padStart(2,"0")+":"+String(Math.round(v%60)).padStart(2,"0"),aria:"Prezzo per quarto d'ora",empty:"Profilo non disponibile per queste zone."});}
+function renderRanking(){const d=S.day;if(!d)return;const prev=addDays(d,-1);$("rank-title").textContent="Classifica delle zone · "+dLabel(d,true);
+  const rows=ZONES.map(([c,n])=>({c,n,v:val(c,d),p:val(c,prev),mn:S.zones[c]&&S.zones[c].d&&S.zones[c].d[d]?S.zones[c].d[d][1]:null,mx:S.zones[c]&&S.zones[c].d&&S.zones[c].d[d]?S.zones[c].d[d][2]:null})).filter(r=>r.v!=null).sort((a,b)=>a.v-b.v);
+  const t=$("rank-tbl");t.textContent="";const maxv=Math.max(...rows.map(r=>r.v),1);
+  t.appendChild(el("thead",{},[el("tr",{},["#","Zona","€/MWh","","Δ giorno","Δ %","Min–max quarti d'ora"].map((h,i)=>el("th",{class:(i===2||i>=4)?"r":"",text:h})))]));const tb=el("tbody");
+  rows.forEach((r,i)=>{const dd=r.p!=null?r.v-r.p:null;const bar=el("div",{class:"bar"});bar.style.width=Math.max(2,r.v/maxv*120)+"px";if(r.c==="ES"||r.c==="PT")bar.style.background=cssv("--es");if(r.c.startsWith("IT"))bar.style.background=cssv("--it");
+    const tr=el("tr",{class:"click"+(S.sel.includes(r.c)?" hl":""),tabindex:"0",onclick:()=>toggleSel(r.c),onkeydown:e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();toggleSel(r.c);}}},[el("td",{class:"num muted",text:String(i+1)}),el("td",{text:r.n}),el("td",{class:"r num",text:fmt(r.v)}),el("td",{},[bar]),el("td",{class:"r num "+(dd>0?"up":dd<0?"down":""),text:fmtS(dd)}),el("td",{class:"r num "+(dd>0?"up":dd<0?"down":""),text:r.p?fmtS(dd/r.p*100,1)+"%":"—"}),el("td",{class:"r num muted",text:fmt(r.mn,0)+" – "+fmt(r.mx,0)})]);tb.appendChild(tr);});
+  t.appendChild(tb);}
+function toggleSel(c){if(S.sel.includes(c)){if(S.sel.length>1)S.sel=S.sel.filter(x=>x!==c);}else{if(S.sel.length>=6)S.sel.shift();S.sel.push(c);}savePrefs();renderAnalysis();renderRanking();}
+function renderBills(){const e=S.eurostat;const box=$("eu-bars");box.textContent="";const seg=$("eu-seg");seg.textContent="";
+  if(!e||!e.data){box.appendChild(el("div",{class:"empty",text:"Dati Eurostat non ancora caricati."}));return;}
+  const per=e.times;if(!S.euPeriod||!per.includes(S.euPeriod))S.euPeriod=per[per.length-1];
+  per.slice(-4).forEach(p=>seg.appendChild(el("button",{"aria-pressed":String(p===S.euPeriod),text:p.replace("-S"," S"),onclick:()=>{S.euPeriod=p;renderBills();}})));
+  const prevP=per[per.indexOf(S.euPeriod)-2];
+  const rows=Object.entries(e.data).filter(([k,v])=>v[S.euPeriod]!=null&&k!=="EA").map(([k,v])=>({k,n:EU_NAMES[k]||v.name||k,v:v[S.euPeriod]*100,pv:prevP&&v[prevP]!=null?v[prevP]*100:null})).sort((a,b)=>b.v-a.v);
+  const mx=Math.max(...rows.map(r=>r.v));
+  rows.forEach(r=>{const cls=r.k==="ES"?"es":r.k==="IT"?"it":"";const f=el("div",{class:"f"});f.style.width=(r.v/mx*100)+"%";if(r.k==="EU27_2020")f.style.background=cssv("--accent");
+    const ch=r.pv!=null?" ("+fmtS((r.v-r.pv)/r.pv*100,0)+"% a/a)":"";
+    box.appendChild(el("div",{class:"hbar "+cls,title:r.n+": "+fmt(r.v)+" c€/kWh"+ch},[el("span",{text:r.n}),el("div",{class:"t"},[f]),el("span",{class:"num r",style:"text-align:right",text:fmt(r.v)})]));});
+  const it=e.data.IT&&e.data.IT[S.euPeriod],es=e.data.ES&&e.data.ES[S.euPeriod];
+  $("eu-note").textContent="c€/kWh, tutte le imposte incluse, famiglie con consumo 2.500–4.999 kWh/anno. "+(it&&es?"Italia "+fmt((it-es)*100)+" c€/kWh sopra la Spagna nel "+S.euPeriod.replace("-S"," S")+". ":"")+"Dataset Eurostat aggiornato il "+(e.updated?e.updated.slice(0,10).split("-").reverse().join("/"):"—")+"; esce un semestre alla volta, con circa quattro mesi di ritardo.";}
+function renderHepi(){const h=S.hepi;const box=$("hepi-bars");box.textContent="";if(!h||!h.rows){box.appendChild(el("div",{class:"empty",text:"Dati HEPI non caricati."}));return;}
+  $("hepi-period").textContent=h.period||"";const rows=h.rows.slice().sort((a,b)=>b.v-a.v);const mx=Math.max(...rows.map(r=>r.v));
+  rows.forEach(r=>{const cls=r.c==="Madrid"?"es":r.c==="Roma"?"it":"";const f=el("div",{class:"f"});f.style.width=(r.v/mx*100)+"%";box.appendChild(el("div",{class:"hbar "+cls},[el("span",{text:r.c}),el("div",{class:"t"},[f]),el("span",{class:"num",style:"text-align:right",text:fmt(r.v,1)})]));});
+  $("hepi-note").textContent=h.note||"";}
+function renderAnalysis(){renderChips();renderTrend();renderCompare();renderProfile();
+  document.querySelectorAll("#range-seg button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===S.range)));
+  document.querySelectorAll("#agg-seg button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===S.agg)));
+  $("ma-chk").checked=S.ma;$("ma-chk").disabled=S.agg!=="d";}
+function renderStatus(){const pill=$("st-pill"),tx=$("st-text");const st=S.status;
+  if(!S.loaded){return;}
+  if(!Object.keys(S.zones).length){pill.className="pill err";tx.textContent="Nessun dato ancora";return;}
+  const at=st&&st.updatedAt?new Date(st.updatedAt):null;const t=todayCET();const hasTomorrow=allDates().includes(addDays(t,1));
+  const age=at?(Date.now()-at)/36e5:99;pill.className="pill "+(age<14?"ok":"stale");
+  tx.textContent=(at?"Aggiornato "+at.toLocaleString("it-IT",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"")+(hasTomorrow?" · prezzi di domani disponibili":" · domani non ancora pubblicato");}
+function renderAll(){if(!S.loaded)return;renderStatus();renderDaySel();renderKpis();renderAnalysis();renderRanking();renderBills();renderHepi();}
+
+/* ---------- controls ---------- */
+$("day-sel").addEventListener("change",e=>{S.day=e.target.value;renderKpis();renderRanking();});
+$("range-seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.range=+b.dataset.v;if(S.range>=180&&S.agg==="d")S.agg="w";savePrefs();renderAnalysis();});
+$("agg-seg").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.agg=b.dataset.v;if(S.agg!=="d")S.ma=false;savePrefs();renderAnalysis();});
+$("ma-chk").addEventListener("change",e=>{S.ma=e.target.checked;savePrefs();renderAnalysis();});
+$("add-zone").addEventListener("change",e=>{const c=e.target.value;if(c&&!S.sel.includes(c)&&S.sel.length<6){S.sel.push(c);savePrefs();renderAnalysis();renderRanking();}});
+$("cmp-a").addEventListener("change",e=>{S.cmpA=e.target.value;savePrefs();renderCompare();});
+$("cmp-b").addEventListener("change",e=>{S.cmpB=e.target.value;savePrefs();renderCompare();});
+$("cmp-swap").addEventListener("click",()=>{[S.cmpA,S.cmpB]=[S.cmpB,S.cmpA];savePrefs();renderCompare();});
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(S.loaded){renderTrend();renderCompare();renderProfile();}},150);});
+if(window.matchMedia)window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>setTimeout(renderAll,50));
+new MutationObserver(()=>setTimeout(renderAll,50)).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+
+/* ---------- boot: read the data files published next to this page ---------- */
+(async()=>{
+  const get=async p=>{const r=await fetch(p,{cache:"no-cache"});if(!r.ok)throw new Error(p+" "+r.status);return r.json();};
+  try{
+    const st=await get("data/status.json");S.status=st;
+    const codes=st.zones||ZONES.map(z=>z[0]);
+    const res=await Promise.allSettled(codes.map(c=>get("data/zones/"+c+".json")));
+    res.forEach(r=>{if(r.status==="fulfilled"&&r.value&&r.value.code)S.zones[r.value.code]=r.value;});
+    try{const pr=await get("data/profiles.json");Object.entries(pr).forEach(([c,q])=>{if(S.zones[c])S.zones[c].q=q;});}catch(e){}
+    try{S.eurostat=await get("data/eurostat.json");}catch(e){}
+    try{S.hepi=await get("data/hepi.json");}catch(e){}
+    S.loaded=true;renderAll();
+  }catch(e){$("st-pill").className="pill err";$("st-text").textContent="Dati non raggiungibili, riprova più tardi";}
+})();
+})();
+</script>
+</body>
+</html>
