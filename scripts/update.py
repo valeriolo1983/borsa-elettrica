@@ -54,6 +54,12 @@ def write_zone(code, d):
     with open(os.path.join(ZDIR, code + ".json"), "w") as f:
         f.write('{"code":%s,"d":{\n%s\n}}\n' % (json.dumps(code), lines))
 
+def write_status(failed):
+    present = [z for z in ZONES if os.path.exists(os.path.join(ZDIR, z + ".json"))]
+    with open(os.path.join(DATA, "status.json"), "w") as f:
+        json.dump({"updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+                   "zones": present, "failed": failed}, f)
+
 def main():
     os.makedirs(ZDIR, exist_ok=True)
     today = datetime.datetime.now(TZ).date()
@@ -73,7 +79,8 @@ def main():
         d, q = summarize(j)
         old.update(d); write_zone(code, old)
         if q: profiles[code] = q
-        ok.append(code); time.sleep(3)
+        ok.append(code); write_status(failed)
+        time.sleep(3)
     with open(prof_path, "w") as f:
         json.dump(profiles, f, separators=(",", ":"))
     e = get_json(EUROSTAT, tries=3)
@@ -89,10 +96,7 @@ def main():
             if len(row) > 1: out[g] = row
         with open(os.path.join(DATA, "eurostat.json"), "w") as f:
             json.dump({"updated": e.get("updated"), "times": ti, "data": out}, f, separators=(",", ":"))
-    present = [z for z in ZONES if os.path.exists(os.path.join(ZDIR, z + ".json"))]
-    with open(os.path.join(DATA, "status.json"), "w") as f:
-        json.dump({"updatedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
-                   "zones": present, "failed": failed}, f)
+    write_status(failed)
     print(f"aggiornate {len(ok)} zone, fallite: {failed}")
     if len(ok) == 0: sys.exit(1)
 
